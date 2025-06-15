@@ -5,8 +5,9 @@ from mailbox import Message
 from unittest.mock import patch, MagicMock
 
 from twilio.base.exceptions import TwilioException, TwilioRestException
-from twilio.twiml.messaging_response import Message
+from twilio.rest.api.v2010.account.message import MessageInstance
 
+from app.core.twilio_logic import get_full_twilio_data
 from app.exceptions import ClientAuthenticationException
 
 class TwilioLogicTest(unittest.TestCase):
@@ -44,17 +45,14 @@ class TwilioLogicTest(unittest.TestCase):
 
 
     def test_get_full_twilio_data_returns_message(self):
-        from app.core.twilio_logic import get_full_twilio_data
+        mock_return_message = MagicMock(spec=MessageInstance)
         fake_client = MagicMock()
-        fake_message = MagicMock()
-        fake_message.sid = "Fake_sid_123"
-        fake_message.body = "Fake_body_123"
-        fake_message.date_created = datetime.now()
-        fake_message.from_ = "+1123456789"
-        fake_client.messages.return_value.fetch.side_effect = fake_message
-        msg = get_full_twilio_data(client=fake_client, msg_sid="fake_sid")
+        fake_client.messages.return_value.fetch.return_value = mock_return_message
 
-        assert isinstance(msg, Message)
+        msg = get_full_twilio_data(client=fake_client, msg_sid="valid_sid")
+
+        self.assertIs(msg, mock_return_message)
+        self.assertIsInstance(msg, MessageInstance)
 
 
     def test_get_client_raises_error_on_missing_credentials(self):
