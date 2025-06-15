@@ -41,11 +41,14 @@ def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
             raise e
 
 
+def extract_message_info(twilio_data: MessageInstance) -> dict:
+    required_fields = ["from_", "body", "date_created"]
+    for field in required_fields:
+        if vars(twilio_data).get(field) is None:
+            raise KeyError(f"Required field {field} is missing")
 
-def extract_message_info(twilio_data: dict) -> dict:
-    try:
-        validated_data = TwilioRequest(**twilio_data)
-    except ValidationError as e:
-        raise KeyError from e
-
-    return {}
+    return {
+        "date_created": twilio_data.date_created,
+        "from": twilio_data.from_,
+        "body": twilio_data.body,
+    }
