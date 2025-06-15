@@ -16,7 +16,7 @@ class TwilioLogicTest(unittest.TestCase):
 
     def test_extract_message_info_raises_error_on_missing_field(self):
         twilio_data = MagicMock(spec=MessageInstance)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(AttributeError):
             extract_message_info(twilio_data)
 
     def test_extract_message_info_returns_dict(self):
