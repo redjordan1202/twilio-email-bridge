@@ -1,7 +1,7 @@
 import os
 
 from twilio.base.exceptions import TwilioRestException
-from twilio.twiml.messaging_response import Message
+from twilio.rest.api.v2010.account.message import MessageInstance
 
 from app.exceptions.exceptions import MissingCredentialsException, ClientAuthenticationException, \
     RequiresClientException, ResourceNotFoundException
@@ -23,7 +23,7 @@ def get_client() -> Client:
         raise ClientAuthenticationException(e.msg)
 
 
-def get_full_twilio_data(client: Client, msg_sid: str) -> Message:
+def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
     if not client:
         raise RequiresClientException("Client is required")
     if not msg_sid:
@@ -31,6 +31,8 @@ def get_full_twilio_data(client: Client, msg_sid: str) -> Message:
 
     try:
         message = client.messages(msg_sid).fetch()
+        print(type(message))
+        print(message)
         return message
     except TwilioRestException as e:
         if e.status == 404:
