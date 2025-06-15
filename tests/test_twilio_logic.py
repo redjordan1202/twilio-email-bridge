@@ -1,10 +1,9 @@
 import os
 import unittest
 from datetime import datetime
-from mailbox import Message
 from unittest.mock import patch, MagicMock
 
-from twilio.base.exceptions import TwilioException, TwilioRestException
+from twilio.base.exceptions import TwilioRestException
 from twilio.rest.api.v2010.account.message import MessageInstance
 
 from app.core.twilio_logic import get_full_twilio_data, extract_message_info, get_client
