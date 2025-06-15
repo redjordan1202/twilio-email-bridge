@@ -19,7 +19,7 @@ class TwilioLogicTest(unittest.TestCase):
         from app.core.twilio_logic import get_full_twilio_data
         from app.exceptions import RequiresClientException
         with self.assertRaises(RequiresClientException):
-            get_full_twilio_data("")
+            get_full_twilio_data(client=None)
 
 
     def test_get_client_raises_error_on_missing_credentials(self):
