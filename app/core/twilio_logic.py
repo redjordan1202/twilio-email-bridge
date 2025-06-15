@@ -1,6 +1,8 @@
 import os
 
-from app.exceptions.exceptions import MissingCredentialsException
+from twilio.base.exceptions import TwilioRestException
+
+from app.exceptions.exceptions import MissingCredentialsException, ClientAuthenticationException
 from app.models import TwilioRequest
 from pydantic import ValidationError
 from twilio.rest import Client
@@ -12,7 +14,11 @@ def get_client() -> Client:
     if not account_sid or not auth_token:
         raise MissingCredentialsException("Required credentials are missing")
 
-    return Client(account_sid, auth_token)
+    try:
+        client = Client(account_sid, auth_token)
+        return client
+    except TwilioRestException as e:
+        raise ClientAuthenticationException(e.msg)
 
 
 def extract_message_info(twilio_data: dict) -> dict:
