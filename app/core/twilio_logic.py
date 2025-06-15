@@ -2,7 +2,8 @@ import os
 
 from twilio.base.exceptions import TwilioRestException
 
-from app.exceptions.exceptions import MissingCredentialsException, ClientAuthenticationException
+from app.exceptions.exceptions import MissingCredentialsException, ClientAuthenticationException, \
+    RequiresClientException
 from app.models import TwilioRequest
 from pydantic import ValidationError
 from twilio.rest import Client
@@ -20,6 +21,10 @@ def get_client() -> Client:
     except TwilioRestException as e:
         raise ClientAuthenticationException(e.msg)
 
+
+def get_full_twilio_data(client: Client) -> dict:
+    if not client:
+        raise RequiresClientException("Client is required")
 
 def extract_message_info(twilio_data: dict) -> dict:
     try:
