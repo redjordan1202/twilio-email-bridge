@@ -1,5 +1,6 @@
 import os
 import unittest
+from datetime import datetime
 from unittest.mock import patch, MagicMock
 
 from twilio.base.exceptions import TwilioException, TwilioRestException
@@ -38,6 +39,20 @@ class TwilioLogicTest(unittest.TestCase):
         )
         with self.assertRaises(ResourceNotFoundException):
             get_full_twilio_data(client=fake_client, msg_sid="invalid_sid")
+
+
+    def test_get_full_twilio_data_returns_dict(self):
+        from app.core.twilio_logic import get_full_twilio_data
+        fake_client = MagicMock()
+        fake_message = MagicMock()
+        fake_message.sid = "Fake_sid_123"
+        fake_message.body = "Fake_body_123"
+        fake_message.date_created = datetime.now()
+        fake_message.from_ = "+1123456789"
+        fake_client.messages.return_value.fetch.side_effect = fake_message
+        data = get_full_twilio_data(client=fake_client, msg_sid="fake_sid")
+
+        assert type(data) == dict
 
 
     def test_get_client_raises_error_on_missing_credentials(self):
