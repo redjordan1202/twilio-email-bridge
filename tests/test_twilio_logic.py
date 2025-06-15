@@ -1,6 +1,6 @@
 import os
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from twilio.base.exceptions import TwilioException, TwilioRestException
 
@@ -20,6 +20,12 @@ class TwilioLogicTest(unittest.TestCase):
         from app.exceptions import RequiresClientException
         with self.assertRaises(RequiresClientException):
             get_full_twilio_data(client=None)
+
+    def test_get_full_twilio_data_raises_error_on_missing_message_sid(self):
+        from app.core.twilio_logic import get_full_twilio_data
+        fake_client = MagicMock()
+        with self.assertRaises(ValueError):
+            get_full_twilio_data(client=fake_client, msg_sid=None)
 
 
     def test_get_client_raises_error_on_missing_credentials(self):
