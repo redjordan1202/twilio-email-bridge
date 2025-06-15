@@ -44,8 +44,10 @@ def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
 def extract_message_info(twilio_data: MessageInstance) -> dict:
     required_fields = ["from_", "body", "date_created"]
     for field in required_fields:
-        if vars(twilio_data).get(field) is None:
+        if not hasattr(twilio_data, field):
             raise KeyError(f"Required field {field} is missing")
+        if not getattr(twilio_data, field):
+            raise KeyError(f"Required field {field} is present but empty")
 
     return {
         "date_created": twilio_data.date_created,
