@@ -6,11 +6,13 @@ from pydantic import ValidationError
 from twilio.rest import Client
 
 
-def get_client():
+def get_client() -> Client:
     account_sid = os.environ["TWILIO_ACCOUNT_SID"] if "TWILIO_ACCOUNT_SID" in os.environ else None
     auth_token = os.environ["TWILIO_AUTH_TOKEN"] if "TWILIO_AUTH_TOKEN" in os.environ else None
     if not account_sid or not auth_token:
         raise MissingCredentialsException("Required credentials are missing")
+
+    return Client(account_sid, auth_token)
 
 
 def extract_message_info(twilio_data: dict) -> dict:
