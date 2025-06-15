@@ -18,3 +18,10 @@ class ClientAuthenticationException(Exception):
 
     def __str__(self):
         return "Twilio client authentication failed"
+
+class ResourceNotFoundException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Resource not found"
