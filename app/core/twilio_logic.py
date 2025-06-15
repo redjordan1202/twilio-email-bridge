@@ -20,7 +20,7 @@ def get_client() -> Client:
         client = Client(account_sid, auth_token)
         return client
     except TwilioRestException as e:
-        raise ClientAuthenticationException(e.msg)
+        raise ClientAuthenticationException("Twilio Authentication Failed") from e
 
 
 def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
