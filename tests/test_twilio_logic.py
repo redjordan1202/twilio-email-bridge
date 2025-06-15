@@ -19,6 +19,19 @@ class TwilioLogicTest(unittest.TestCase):
         with self.assertRaises(KeyError):
             extract_message_info(twilio_data)
 
+    def test_extract_message_info_returns_dict(self):
+        msg_data = MagicMock(spec=MessageInstance)
+        msg_data.body = "Test Body"
+        msg_data.from_ = "+11234567890"
+        msg_data.date_created = datetime.now()
+
+        data = extract_message_info(msg_data)
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['Body'], msg_data.to)
+        self.assertEqual(data['From'], msg_data.from_)
+        self.assertEqual(data['DateCreated'], msg_data.date_created)
+
+
 
     def test_get_full_twilio_data_raises_error_on_missing_client(self):
         with self.assertRaises(RequiresClientException):
