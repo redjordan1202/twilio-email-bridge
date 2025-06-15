@@ -15,7 +15,7 @@ from app.exceptions import ClientAuthenticationException, RequiresClientExceptio
 class TwilioLogicTest(unittest.TestCase):
 
     def test_extract_message_info_raises_error_on_missing_field(self):
-        twilio_data = {}
+        twilio_data = MagicMock(spec=MessageInstance)
         with self.assertRaises(KeyError):
             extract_message_info(twilio_data)
 
