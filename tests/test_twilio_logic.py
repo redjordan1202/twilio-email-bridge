@@ -27,9 +27,9 @@ class TwilioLogicTest(unittest.TestCase):
 
         data = extract_message_info(msg_data)
         self.assertIsInstance(data, dict)
-        self.assertEqual(data['Body'], msg_data.to)
-        self.assertEqual(data['From'], msg_data.from_)
-        self.assertEqual(data['DateCreated'], msg_data.date_created)
+        self.assertEqual(data['body'], msg_data.to)
+        self.assertEqual(data['from'], msg_data.from_)
+        self.assertEqual(data['date_created'], msg_data.date_created)
 
 
 
