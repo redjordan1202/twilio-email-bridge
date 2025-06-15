@@ -23,6 +23,7 @@ def get_client() -> Client:
 
 
 def get_full_twilio_data(client: Client, msg_sid: str) -> dict:
+    message = None
     if not client:
         raise RequiresClientException("Client is required")
     if not msg_sid:
@@ -30,10 +31,13 @@ def get_full_twilio_data(client: Client, msg_sid: str) -> dict:
 
     try:
         message = client.messages(msg_sid).fetch()
-        return message.__dict__
     except TwilioRestException as e:
         if e.status == 404:
             raise ResourceNotFoundException(f"Resource not found: {msg_sid}")
+        else:
+            raise e
+    return vars(message)
+
 
 def extract_message_info(twilio_data: dict) -> dict:
     try:
