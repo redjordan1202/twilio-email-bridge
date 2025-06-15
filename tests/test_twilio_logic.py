@@ -29,9 +29,14 @@ class TwilioLogicTest(unittest.TestCase):
 
     def test_get_full_twilio_data_raises_error_on_invalid_message_sid(self):
         from app.core.twilio_logic import get_full_twilio_data
-        from app.exceptions import InvalidMsgSidException
+        from app.exceptions import ResourceNotFoundException
         fake_client = MagicMock()
-        with self.assertRaises(InvalidMsgSidException):
+        fake_client.messages.return_value.fetch.side_effect = TwilioRestException(
+            status=404,
+            uri="/2010-04-01/Accounts/AC.../Messages/SM_not_found",
+            msg="The requested resource was not found"
+        )
+        with self.assertRaises(ResourceNotFoundException):
             get_full_twilio_data(client=fake_client, msg_sid="invalid_sid")
 
 
