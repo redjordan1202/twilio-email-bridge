@@ -27,6 +27,13 @@ class TwilioLogicTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             get_full_twilio_data(client=fake_client, msg_sid=None)
 
+    def test_get_full_twilio_data_raises_error_on_invalid_message_sid(self):
+        from app.core.twilio_logic import get_full_twilio_data
+        from app.exceptions import InvalidMsgSidException
+        fake_client = MagicMock()
+        with self.assertRaises(InvalidMsgSidException):
+            get_full_twilio_data(client=fake_client, msg_sid="invalid_sid")
+
 
     def test_get_client_raises_error_on_missing_credentials(self):
         from app.core.twilio_logic import get_client
