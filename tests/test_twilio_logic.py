@@ -19,6 +19,11 @@ class TwilioLogicTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             extract_message_info(twilio_data)
 
+    def test_extract_message_info_raises_error_on_blank_field(self):
+        msg_data = MagicMock(spec=MessageInstance)
+        with self.assertRaises(ValueError):
+            extract_message_info(msg_data)
+
     def test_extract_message_info_returns_dict(self):
         msg_data = MagicMock(spec=MessageInstance)
         msg_data.body = "Test Body"
