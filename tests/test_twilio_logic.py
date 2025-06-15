@@ -21,6 +21,9 @@ class TwilioLogicTest(unittest.TestCase):
 
     def test_extract_message_info_raises_error_on_blank_field(self):
         msg_data = MagicMock(spec=MessageInstance)
+        msg_data.body = "Test Body"
+        msg_data.from_ = "+11234567890"
+        msg_data.date_created = None
         with self.assertRaises(ValueError):
             extract_message_info(msg_data)
 
