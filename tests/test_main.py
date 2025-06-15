@@ -11,3 +11,8 @@ def test_twilio_webhook_valid_path():
 def test_twilio_webhook_reject_get():
     response = test_client.get("/webhooks/twilio")
     assert response.status_code == 405
+    assert response.json() == {
+        "error_code": 405,
+        "description": "Not allowed",
+        "message": "Method Not Allowed",
+    }
