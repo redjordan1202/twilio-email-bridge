@@ -2,6 +2,9 @@ import os
 import unittest
 from unittest.mock import patch
 
+from twilio.base.exceptions import TwilioException, TwilioRestException
+
+from app.exceptions import ClientAuthenticationException
 
 class TwilioLogicTest(unittest.TestCase):
 
@@ -35,3 +38,16 @@ class TwilioLogicTest(unittest.TestCase):
             'AC123',
             'AC456'
         )
+
+    @patch('twilio.rest.Client')
+    @patch.dict(os.environ, {'TWILIO_ACCOUNT_SID': 'AC123', 'TWILIO_AUTH_TOKEN': 'AC456'})
+    def test_get_client_raises_exception_on_incorrect_credentials(self, mock_twilio_client):
+        from app.core.twilio_logic import get_client
+        mock_twilio_client.side_effect = TwilioRestException(
+            status=401,
+            uri="/2010-04-01/Accounts/AC_fake_sid",
+            msg="Authentication Error"
+        )
+
+        with self.assertRaises(ClientAuthenticationException):
+            get_client()
