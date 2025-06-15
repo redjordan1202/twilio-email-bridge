@@ -1,1 +1,1 @@
-from .exceptions import RequiresClientException, MissingCredentialsException
+from .exceptions import RequiresClientException, MissingCredentialsException, ClientAuthenticationException
