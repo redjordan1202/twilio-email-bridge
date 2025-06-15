@@ -1,4 +1,7 @@
+import os
 import unittest
+from unittest.mock import patch
+
 
 class TwilioLogicTest(unittest.TestCase):
 
@@ -21,3 +24,14 @@ class TwilioLogicTest(unittest.TestCase):
         from app.exceptions import MissingCredentialsException
         with self.assertRaises(MissingCredentialsException):
             get_client()
+
+    @patch('twilio.rest.Client')
+    @patch.dict(os.environ, {'TWILIO_ACCOUNT_SID': 'AC123', 'TWILIO_AUTH_TOKEN': 'AC456'})
+    def test_get_client_returns_client(self, mock_twilio_client):
+        from app.core.twilio_logic import get_client
+        get_client()
+        mock_twilio_client.assert_called_once()
+        mock_twilio_client.assert_called_once_with(
+            'AC123',
+            'AC456'
+        )
