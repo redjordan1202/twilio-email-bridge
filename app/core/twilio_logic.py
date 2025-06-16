@@ -1,12 +1,12 @@
 import os
 
 from twilio.base.exceptions import TwilioRestException
+from twilio.request_validator import RequestValidator
 from twilio.rest.api.v2010.account.message import MessageInstance
+from fastapi import Request
 
 from app.exceptions.exceptions import MissingCredentialsException, ClientAuthenticationException, \
-    RequiresClientException, ResourceNotFoundException
-from app.models import TwilioRequest
-from pydantic import ValidationError
+    RequiresClientException, ResourceNotFoundException, InvalidTwilioRequestException
 from twilio.rest import Client
 
 
@@ -22,6 +22,17 @@ def get_client() -> Client:
     except TwilioRestException as e:
         raise ClientAuthenticationException("Twilio Authentication Failed") from e
 
+def validate_twilio_request(request: Request, data: dict) -> bool:
+        validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
+        is_valid = validator.validate(
+            request.url.path,
+            data,
+            request.headers.get("X-Twilio-Signature", "")
+        )
+        if is_valid:
+            return True
+        else:
+            return False
 
 def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
     if not client:
