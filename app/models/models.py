@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -27,12 +27,12 @@ class TwilioRequest(BaseModel):
     ForwardedFrom: str
     MessageStatus: str
     Body: str
-    FromZip: str
-    FromCity: str
-    FromState: str
-    FromCountry: str
-    ToZip: str
-    ToCity: str
-    ToState: str
-    ToCountry: str
-    NumMedia: str
+    FromZip: Optional[str]
+    FromCity: Optional[str]
+    FromState: Optional[str]
+    FromCountry: Optional[str]
+    ToZip: Optional[str]
+    ToCity: Optional[str]
+    ToState: Optional[str]
+    ToCountry: Optional[str]
+    NumMedia: int

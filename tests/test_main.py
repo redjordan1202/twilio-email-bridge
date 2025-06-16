@@ -1,10 +1,28 @@
 from fastapi.testclient import TestClient
 from app.core.main import app
+import json
 
 test_client = TestClient(app)
 
+dummy_message = {
+    "SmsSid": "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "SmsStatus": "received",
+    "MessageSid": "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "AccountSid": "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "From": "+11234567890",
+    "ApiVersion": '2010-04-01',
+    "SmsMessageSid": "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "NumSegments": "1",
+    "To": "+10987654321",
+    "ForwardedFrom": "",
+    "MessageStatus": "received",
+    "Body": "Hello World",
+    "NumMedia": "0"
+}
+
 def test_twilio_webhook_handles_valid_request():
-    response = test_client.post("/webhooks/twilio")
+    response = test_client.post("/webhooks/twilio", data=dummy_message)
+    print(response.request.content)
     assert response.status_code == 200
     assert response.json() == {}
 
