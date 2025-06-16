@@ -22,7 +22,7 @@ class TwilioRequest(BaseModel):
     From: str
     ApiVersion: str
     SmsMessageSid: str
-    NumSegments: int
+    NumSegments: str
     To: str
     ForwardedFrom: str
     MessageStatus: str
@@ -35,4 +35,4 @@ class TwilioRequest(BaseModel):
     ToCity: Optional[str] = None
     ToState: Optional[str] = None
     ToCountry: Optional[str] = None
-    NumMedia: int
+    NumMedia: str
