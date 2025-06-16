@@ -6,7 +6,7 @@ from unittest.mock import patch, MagicMock
 from twilio.base.exceptions import TwilioRestException
 from twilio.rest.api.v2010.account.message import MessageInstance
 
-from app.core.twilio_logic import get_full_twilio_data, extract_message_info, get_client
+from app.core.twilio_logic import get_full_twilio_data, extract_message_info, get_client, validate_twilio_request
 from app.exceptions import ClientAuthenticationException, RequiresClientException, ResourceNotFoundException, \
     MissingCredentialsException
 
@@ -96,3 +96,25 @@ class TwilioLogicTest(unittest.TestCase):
 
         with self.assertRaises(ClientAuthenticationException):
             get_client()
+
+    @patch('app.core.twilio_logic.RequestValidator')
+    @patch.dict(os.environ, {'TWILIO_AUTH_TOKEN': 'fake_token'})
+    def test_validate_twilio_request_returns_true(self, mock_validator):
+        mock_validator.return_value.validate.return_value = True
+        mock_request = MagicMock()
+        mock_request.url.path = '/webhooks/twilio'
+        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+        data = {'key': 'value'}
+        is_valid = validate_twilio_request(mock_request, data)
+        self.assertTrue(is_valid)
+
+    @patch('app.core.twilio_logic.RequestValidator')
+    @patch.dict(os.environ, {'TWILIO_AUTH_TOKEN': 'fake_token'})
+    def test_validate_twilio_request_returns_false(self, mock_validator):
+        mock_validator.return_value.validate.return_value = False
+        mock_request = MagicMock()
+        mock_request.url.path = '/webhooks/twilio'
+        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+        data = {'key': 'value'}
+        is_valid = validate_twilio_request(mock_request, data)
+        self.assertFalse(is_valid)
