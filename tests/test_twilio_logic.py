@@ -4,9 +4,11 @@ from datetime import datetime
 from unittest.mock import patch, MagicMock
 
 from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 from twilio.rest.api.v2010.account.message import MessageInstance
 
-from app.core.twilio_logic import get_full_twilio_data, extract_message_info, get_client, validate_twilio_request
+from app.core.twilio_logic import get_full_twilio_data, extract_message_info, get_client, validate_twilio_request, \
+    twilio_background_task
 from app.exceptions import ClientAuthenticationException, RequiresClientException, ResourceNotFoundException, \
     MissingCredentialsException
 
@@ -118,3 +120,41 @@ class TwilioLogicTest(unittest.TestCase):
         data = {'key': 'value'}
         is_valid = validate_twilio_request(mock_request, data)
         self.assertFalse(is_valid)
+
+    @patch('app.core.twilio_logic.validate_twilio_request')
+    @patch('app.core.twilio_logic.get_client')
+    @patch('app.core.twilio_logic.get_full_twilio_data')
+    @patch('app.core.twilio_logic.extract_message_info')
+    def test_background_task_function_calls_all_functions_correctly(
+            self,
+            mock_extract_message_info,
+            mock_get_full_twilio_data,
+            mock_get_client,
+            mock_validate_twilio_request
+        ):
+        mock_request = MagicMock()
+        mock_request.url.path = '/webhooks/twilio'
+        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+        mock_data = {'MessageSid': 'fake_msg_sid', 'key': 'value'}
+        mock_client = MagicMock(spec=Client)
+        mock_message_instance = MagicMock(spec=MessageInstance)
+        mock_message_instance.body = "Test Body"
+        mock_message_instance.from_ = "+11234567890"
+        mock_message_instance.date_created = datetime.now()
+
+
+        mock_validate_twilio_request.return_value = True
+        mock_get_client.return_value = mock_client
+        mock_get_full_twilio_data.return_value = mock_message_instance
+        mock_extract_message_info.return_value = {
+            'body': mock_message_instance.body,
+            'from': mock_message_instance.from_,
+            'date_created': mock_message_instance.date_created
+        }
+
+        twilio_background_task(mock_request, mock_data)
+
+        mock_validate_twilio_request.assert_called_once_with(mock_request, mock_data)
+        mock_get_client.assert_called_once()
+        mock_get_full_twilio_data.assert_called_once_with(mock_client, mock_data['MessageSid'])
+        mock_extract_message_info.assert_called_once_with(mock_message_instance)
