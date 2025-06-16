@@ -78,4 +78,4 @@ def test_twilio_webhook_raises_error_missing_body_in_form():
     assert response.status_code == 422
     assert "Validation Error" in response.json()["description"]
     assert len(response.json()["validation_errors"]) > 0
-    assert response.json()["validation_errors"][0]["field"] == "body"
+    assert response.json()["validation_errors"][0]["field"] == "Body"
