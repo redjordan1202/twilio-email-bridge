@@ -65,3 +65,16 @@ def extract_message_info(twilio_data: MessageInstance) -> dict:
         "from": twilio_data.from_,
         "body": twilio_data.body,
     }
+
+
+def twilio_background_task(request: Request, data: dict) -> dict:
+    if not validate_twilio_request(request, data):
+        raise InvalidTwilioRequestException("Invalid Twilio request")
+
+    client = get_client()
+    msg_sid = data.get("MessageSid")
+    if not msg_sid:
+        raise ValueError("MessageSid is required in the data")
+    full_twilio_data = get_full_twilio_data(client, msg_sid)
+    extracted_info = extract_message_info(full_twilio_data)
+    return extracted_info
