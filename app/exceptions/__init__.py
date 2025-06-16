@@ -1,2 +1,2 @@
 from .exceptions import RequiresClientException, MissingCredentialsException, ClientAuthenticationException, \
-    ResourceNotFoundException
+    ResourceNotFoundException, InvalidTwilioRequestException
