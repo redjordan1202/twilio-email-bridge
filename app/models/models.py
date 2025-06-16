@@ -27,12 +27,12 @@ class TwilioRequest(BaseModel):
     ForwardedFrom: str
     MessageStatus: str
     Body: str
-    FromZip: Optional[str]
-    FromCity: Optional[str]
-    FromState: Optional[str]
-    FromCountry: Optional[str]
-    ToZip: Optional[str]
-    ToCity: Optional[str]
-    ToState: Optional[str]
-    ToCountry: Optional[str]
+    FromZip: Optional[str] = None
+    FromCity: Optional[str] = None
+    FromState: Optional[str] = None
+    FromCountry: Optional[str] = None
+    ToZip: Optional[str] = None
+    ToCity: Optional[str] = None
+    ToState: Optional[str] = None
+    ToCountry: Optional[str] = None
     NumMedia: int
