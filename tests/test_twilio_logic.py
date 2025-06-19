@@ -8,7 +8,7 @@ from twilio.rest import Client
 from twilio.rest.api.v2010.account.message import MessageInstance
 
 from app.core.twilio_logic import get_full_twilio_data, extract_message_info, get_client, validate_twilio_request, \
-    twilio_background_task, sanitize_twilio_data
+    twilio_background_task
 from app.exceptions import ClientAuthenticationException, RequiresClientException, ResourceNotFoundException, \
     MissingCredentialsException
 
@@ -158,19 +158,3 @@ class TwilioLogicTest(unittest.TestCase):
         mock_get_client.assert_called_once()
         mock_get_full_twilio_data.assert_called_once_with(mock_client, mock_data['MessageSid'])
         mock_extract_message_info.assert_called_once_with(mock_message_instance)
-
-    def test_sanitize_twilio_data_returns_valid_dict(self):
-        raw_data = {
-            "key1": "value1",
-            "key2": None,
-            "key3": None,
-        }
-
-        sanitized_data = {
-            "key1": "value1",
-            "key2": "",
-            "key3": "",
-        }
-
-        result = sanitize_twilio_data(raw_data)
-        self.assertDictEqual(result, sanitized_data)
