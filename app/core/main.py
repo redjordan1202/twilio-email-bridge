@@ -3,10 +3,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
+from dotenv import load_dotenv
 
 from app.endpoints import twilio_webhooks
 from app.models import ErrorResponse, ValidationError
 
+load_dotenv()
+load_dotenv()
 app = FastAPI()
 
 @app.exception_handler(HTTPException)
