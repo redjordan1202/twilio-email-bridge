@@ -24,8 +24,8 @@ class TwilioRequest(BaseModel):
     SmsMessageSid: str
     NumSegments: str
     To: str
-    ForwardedFrom: str
-    MessageStatus: str
+    ForwardedFrom: Optional[str] = None
+    MessageStatus: Optional[str] = None
     Body: str
     FromZip: Optional[str] = None
     FromCity: Optional[str] = None
