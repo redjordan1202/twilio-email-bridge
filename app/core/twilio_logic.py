@@ -3,7 +3,7 @@ import os
 from twilio.base.exceptions import TwilioRestException
 from twilio.request_validator import RequestValidator
 from twilio.rest.api.v2010.account.message import MessageInstance
-from fastapi import Request
+from fastapi import Request, Form
 
 from app.exceptions.exceptions import MissingCredentialsException, ClientAuthenticationException, \
     RequiresClientException, ResourceNotFoundException, InvalidTwilioRequestException
@@ -25,7 +25,7 @@ def get_client() -> Client:
 def validate_twilio_request(request: Request, data: dict) -> bool:
         validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
         is_valid = validator.validate(
-            request.url.path,
+            str(request.url),
             data,
             request.headers.get("X-Twilio-Signature", "")
         )

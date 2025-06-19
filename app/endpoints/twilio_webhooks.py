@@ -13,7 +13,7 @@ async def handle_twilio_sms(request: Request, background_tasks: BackgroundTasks 
     data = await request.form()
     try:
         twilio_data = TwilioRequest(**data)
-        background_tasks.add_task(twilio_background_task, request, twilio_data.model_dump())
+        background_tasks.add_task(twilio_background_task, request, dict(data))
         return JSONResponse(
             status_code=200,
             content={},
