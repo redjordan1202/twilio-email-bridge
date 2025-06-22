@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.requests import Request
@@ -8,7 +10,8 @@ from dotenv import load_dotenv
 from app.endpoints import twilio_webhooks
 from app.models import ErrorResponse, ValidationError
 
-load_dotenv()
+logging.basicConfig(level=logging.INFO)
+
 load_dotenv()
 app = FastAPI()
 
