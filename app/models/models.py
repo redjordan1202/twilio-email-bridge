@@ -1,6 +1,7 @@
-from typing import List, Optional
+from datetime import datetime
+from typing import List, Optional, Dict, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ErrorResponse(BaseModel):
@@ -36,3 +37,16 @@ class TwilioRequest(BaseModel):
     ToState: Optional[str] = None
     ToCountry: Optional[str] = None
     NumMedia: str
+
+
+class LogEntry(BaseModel):
+    timestamp: datetime = Field(default_factory=datetime.now())
+    level: str
+    message: str
+    service_name: Optional[str] = None
+    trace_id: Optional[str] = None
+    context: Optional[Dict[str, Any]] = None
+
+    def to_json(self) -> str:
+        return self.model_dump_json()
+
