@@ -40,7 +40,7 @@ class TwilioRequest(BaseModel):
 
 
 class LogEntry(BaseModel):
-    timestamp: datetime = Field(default_factory=datetime.now())
+    timestamp: datetime = Field(default_factory=datetime.now)
     level: str
     message: str
     service_name: Optional[str] = None
