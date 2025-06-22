@@ -10,7 +10,7 @@ from twilio.rest.api.v2010.account.message import MessageInstance
 from app.core.twilio_logic import get_full_twilio_data, extract_message_info, get_client, validate_twilio_request, \
     twilio_background_task, sanitize_data
 from app.exceptions import ClientAuthenticationException, RequiresClientException, ResourceNotFoundException, \
-    MissingCredentialsException
+    MissingCredentialsException, InvalidTwilioRequestException
 
 
 class TwilioLogicTest(unittest.TestCase):
@@ -159,6 +159,17 @@ class TwilioLogicTest(unittest.TestCase):
         mock_get_client.assert_called_once()
         mock_get_full_twilio_data.assert_called_once_with(mock_client, mock_data['MessageSid'])
         mock_extract_message_info.assert_called_once_with(mock_message_instance)
+
+    @patch('app.core.twilio_logic.validate_twilio_request')
+
+    def test_background_task_function_raises_exception_on_invaild_request(self,mock_validate_twilio_request):
+        mock_validate_twilio_request.return_value = False
+        mock_request = MagicMock()
+        mock_request.url.path = '/webhooks/twilio'
+        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+        mock_data = {'MessageSid': 'fake_msg_sid', 'key': 'value'}
+        with self.assertRaises(InvalidTwilioRequestException):
+            twilio_background_task(mock_request, mock_data)
 
 
     def test_sanitize_data_returns_valid_dict(self):
