@@ -15,8 +15,18 @@ from app.models import LogEntry
 
 
 def get_client() -> Client:
-    account_sid = os.environ["TWILIO_ACCOUNT_SID"] if "TWILIO_ACCOUNT_SID" in os.environ else None
-    auth_token = os.environ["TWILIO_AUTH_TOKEN"] if "TWILIO_AUTH_TOKEN" in os.environ else None
+    """
+    Gets a twilio client instance
+
+    Returns:
+        twilio.rest.Client: Twilio client instance
+
+    Raises:
+        MissingCredentialsException: If no credentials are provided
+        ClientAuthenticationException: If unable to authenticate with Twilio
+    """
+    account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
+    auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
     if not account_sid or not auth_token:
         raise MissingCredentialsException("Required credentials are missing")
 
@@ -27,18 +37,38 @@ def get_client() -> Client:
         raise ClientAuthenticationException("Twilio Authentication Failed") from e
 
 def validate_twilio_request(request: Request, data: dict) -> bool:
-        validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
-        is_valid = validator.validate(
-            str(request.url),
-            data,
-            request.headers.get("X-Twilio-Signature", "")
-        )
-        if is_valid:
-            return True
-        else:
-            return False
+    """
+    Validates a Twilio request
+
+    Args:
+        request: Request to fastAPI endpoint
+        data: Raw twilio request data. (Must not be modified for validator to work)
+
+    Returns:
+        bool: True if valid, False otherwise
+    """
+    validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
+    is_valid = validator.validate(
+        str(request.url),
+        data,
+        request.headers.get("X-Twilio-Signature", "")
+    )
+    return is_valid
 
 def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
+    """
+    Pulls full message data from twilio
+    Args:
+        client: Twilio client instance
+        msg_sid: MessageSid of message being fetched
+
+    Returns:
+        MessageInstance: Instance of the twilio message with all data
+
+    Raises:
+        ValueError: If msg_sid is empty
+        ResourceNotFoundException: If no message is found
+    """
     if not client:
         raise RequiresClientException("Client is required")
     if not msg_sid:
@@ -46,8 +76,6 @@ def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
 
     try:
         message = client.messages(msg_sid).fetch()
-        print(type(message))
-        print(message)
         return message
     except TwilioRestException as e:
         if e.status == 404:
@@ -57,6 +85,18 @@ def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
 
 
 def extract_message_info(twilio_data: MessageInstance) -> dict:
+    """
+    Extracts required message data from twilio MessageInstance
+    Args:
+        twilio_data: Instance of twilio MessageInstance to extract data from
+
+    Returns:
+        dict: Dictionary of extracted data for future processing
+
+    Raises:
+        AttributeError: if any required fields are missing
+        ValueError: if any required fields are present but empty
+    """
     required_fields = ["from_", "body", "date_created"]
     for field in required_fields:
         if not hasattr(twilio_data, field):
@@ -72,6 +112,15 @@ def extract_message_info(twilio_data: MessageInstance) -> dict:
 
 
 def sanitize_data(data: dict) -> dict:
+    """
+    Sanitizes data for logging purposes
+
+    Args:
+        data: The message data to be sanitized. Typically, the raw message data.
+
+    Returns:
+        dict: Dictionary of sanitized data
+    """
     message_sid = data.get("MessageSid",None)
     if not message_sid:
         raise ValueError("MessageSid is required")
@@ -88,9 +137,20 @@ def sanitize_data(data: dict) -> dict:
 
 
 def twilio_background_task(request: Request, data: dict) -> dict | None:
+    """
+    Function to be called as a background task
+    Runs all functions needed to process twilio messages
+
+    Args:
+        request: Request to fastAPI endpoint
+        data: Raw twilio request data. (Must not be modified for validator to work)
+
+    Returns:
+        dict: dictionary of extracted data for future processing
+        None: returned on error.
+    """
     if not validate_twilio_request(request, data):
         failure_log = LogEntry(
-            timestamp=datetime.now(),
             level="ERROR",
             message="Twilio request is invalid",
             service_name="Twilio Webhook",
@@ -110,7 +170,6 @@ def twilio_background_task(request: Request, data: dict) -> dict | None:
         full_twilio_data = get_full_twilio_data(client, msg_sid)
         extracted_info = extract_message_info(full_twilio_data)
         success_log = LogEntry(
-            timestamp=datetime.now(),
             level="INFO",
             message="SMS Processed Successfully",
             service_name="Twilio Webhook",
@@ -131,7 +190,6 @@ def twilio_background_task(request: Request, data: dict) -> dict | None:
         except ValueError:
             sanitized_data = {"MessageSid": "MessageSid Not Found"}
         failure_log = LogEntry(
-            timestamp=datetime.now(),
             level="ERROR",
             message= str(e),
             service_name="Twilio Webhook",
