@@ -1,6 +1,7 @@
 import os
 import unittest
 from datetime import datetime
+from logging import Logger
 from unittest.mock import patch, MagicMock
 
 from twilio.base.exceptions import TwilioRestException
@@ -161,20 +162,24 @@ class TwilioLogicTest(unittest.TestCase):
         mock_extract_message_info.assert_called_once_with(mock_message_instance)
 
     @patch('app.core.twilio_logic.validate_twilio_request')
-
-    def test_background_task_function_raises_exception_on_invaild_request(self,mock_validate_twilio_request):
+    @patch('app.core.twilio_logic.logging.error')
+    def test_background_task_function_logs_error_on_invalid_request (self,mock_logger, mock_validate_twilio_request):
         mock_validate_twilio_request.return_value = False
         mock_request = MagicMock()
         mock_request.url.path = '/webhooks/twilio'
         mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
         mock_data = {'MessageSid': 'fake_msg_sid', 'key': 'value'}
-        with self.assertRaises(InvalidTwilioRequestException):
-            twilio_background_task(mock_request, mock_data)
+
+        twilio_background_task(mock_request, mock_data)
+        mock_logger.assert_called_once()
+
 
     @patch('app.core.twilio_logic.validate_twilio_request')
     @patch('app.core.twilio_logic.get_client')
-    def test_background_task_function_raises_exception_as_expected(
+    @patch('app.core.twilio_logic.logging.error')
+    def test_background_task_function_logs_error_when_exception_is_raised(
             self,
+            mock_logger,
             mock_get_client,
             mock_validate_twilio_request
     ):
@@ -191,8 +196,8 @@ class TwilioLogicTest(unittest.TestCase):
         mock_validate_twilio_request.return_value = True
         mock_get_client.side_effect = ClientAuthenticationException("Required credentials are missing")
 
-        with self.assertRaises(ClientAuthenticationException):
-            twilio_background_task(mock_request, mock_data)
+        twilio_background_task(mock_request, mock_data)
+        mock_logger.assert_called_once()
 
 
 
