@@ -74,8 +74,9 @@ class TwilioLogicTest(unittest.TestCase):
 
 
     def test_get_client_raises_error_on_missing_credentials(self):
-        with self.assertRaises(MissingCredentialsException):
-            get_client()
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaises(MissingCredentialsException):
+                get_client()
 
     @patch('app.core.twilio_logic.Client')
     @patch.dict(os.environ, {'TWILIO_ACCOUNT_SID': 'AC123', 'TWILIO_AUTH_TOKEN': 'AC456'})
