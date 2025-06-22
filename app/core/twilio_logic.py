@@ -87,7 +87,7 @@ def sanitize_data(data: dict) -> dict:
     }
 
 
-def twilio_background_task(request: Request, data: dict) -> dict:
+def twilio_background_task(request: Request, data: dict) -> dict | None:
     if not validate_twilio_request(request, data):
         failure_log = LogEntry(
             timestamp=datetime.now(),
@@ -100,7 +100,7 @@ def twilio_background_task(request: Request, data: dict) -> dict:
             }
         )
         logging.error(failure_log.to_json())
-        raise InvalidTwilioRequestException("Invalid Twilio request")
+        return None
 
     try:
         client = get_client()
@@ -119,6 +119,7 @@ def twilio_background_task(request: Request, data: dict) -> dict:
         )
         logging.info(success_log.to_json())
         return extracted_info
+
     except (
             MissingCredentialsException,
             ClientAuthenticationException,
@@ -138,4 +139,4 @@ def twilio_background_task(request: Request, data: dict) -> dict:
             context=sanitized_data,
         )
         logging.error(failure_log.to_json())
-        raise e
+        return None
