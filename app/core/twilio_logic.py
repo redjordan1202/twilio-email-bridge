@@ -67,6 +67,22 @@ def extract_message_info(twilio_data: MessageInstance) -> dict:
     }
 
 
+def sanitize_data(data: dict) -> dict:
+    message_sid = data.get("MessageSid",None)
+    if not message_sid:
+        raise ValueError("MessageSid is required")
+
+    account_sid = data.get("AccountSid", "")
+
+    return {
+        "MessageSid": message_sid,
+        "AccountSid": account_sid[-4:] if account_sid else "",
+        "ApiVersion": data.get("ApiVersion", ""),
+        "MessageStatus": data.get("MessageStatus", ""),
+        "NumMedia": data.get("NumMedia", ""),
+    }
+
+
 def twilio_background_task(request: Request, data: dict) -> dict:
     if not validate_twilio_request(request, data):
         raise InvalidTwilioRequestException("Invalid Twilio request")
