@@ -171,6 +171,30 @@ class TwilioLogicTest(unittest.TestCase):
         with self.assertRaises(InvalidTwilioRequestException):
             twilio_background_task(mock_request, mock_data)
 
+    @patch('app.core.twilio_logic.validate_twilio_request')
+    @patch('app.core.twilio_logic.get_client')
+    def test_background_task_function_raises_exception_as_expected(
+            self,
+            mock_get_client,
+            mock_validate_twilio_request
+    ):
+        mock_request = MagicMock()
+        mock_request.url.path = '/webhooks/twilio'
+        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+        mock_data = {'MessageSid': 'fake_msg_sid', 'key': 'value'}
+        mock_client = MagicMock(spec=Client)
+        mock_message_instance = MagicMock(spec=MessageInstance)
+        mock_message_instance.body = "Test Body"
+        mock_message_instance.from_ = "+11234567890"
+        mock_message_instance.date_created = datetime.now()
+
+        mock_validate_twilio_request.return_value = True
+        mock_get_client.side_effect = ClientAuthenticationException("Required credentials are missing")
+
+        with self.assertRaises(ClientAuthenticationException):
+            twilio_background_task(mock_request, mock_data)
+
+
 
     def test_sanitize_data_returns_valid_dict(self):
         dummy_message = {
