@@ -8,10 +8,12 @@ from twilio.rest.api.v2010.account.message import MessageInstance
 from fastapi import Request, Form
 
 from app.exceptions.exceptions import MissingCredentialsException, ClientAuthenticationException, \
-    RequiresClientException, ResourceNotFoundException, InvalidTwilioRequestException
+    RequiresClientException, ResourceNotFoundException, InvalidTwilioRequestException, RouteProcessingError
 from twilio.rest import Client
 
 from app.models import LogEntry
+
+from app.decision_logic import get_routes
 
 
 def get_client() -> Client:
@@ -177,13 +179,14 @@ def twilio_background_task(request: Request, data: dict) -> dict | None:
             context=sanitize_data(data),
         )
         logging.info(success_log.to_json())
-        return extracted_info
+        return get_routes(extracted_info)
 
     except (
             MissingCredentialsException,
             ClientAuthenticationException,
             RequiresClientException,
-            ResourceNotFoundException
+            ResourceNotFoundException,
+            RouteProcessingError
     ) as e:
         try:
             sanitized_data = sanitize_data(data)
