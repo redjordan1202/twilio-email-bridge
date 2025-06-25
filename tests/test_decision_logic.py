@@ -71,3 +71,12 @@ class TestDecisionLogic(unittest.TestCase):
 
         actual_result = get_routes(dummy_message)
         self.assertEqual(expected_result, actual_result)
+
+    def test_get_routes_raise_exception_on_processing_error(self):
+        dummy_message = {
+            "date_created": datetime.now(),
+            "from": "+11234567890",
+            "body": None,
+        }
+        with self.assertRaises(RouteProcessingError):
+            get_routes(dummy_message)
