@@ -46,8 +46,8 @@ def get_routes(msg: dict) -> dict:
         return msg
     except Exception as e:
         failure_log = LogEntry(
-            level=logging.ERROR,
-            message=e,
+            level="ERROR",
+            message=str(e),
             service_name="Message Router",
             trace_id=None,
             context=None
