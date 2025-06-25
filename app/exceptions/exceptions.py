@@ -32,3 +32,10 @@ class InvalidTwilioRequestException(Exception):
 
     def __str__(self):
         return "Twilio request is invalid"
+
+class RouteProcessingError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Unable to process routing"
