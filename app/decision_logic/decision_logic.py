@@ -17,6 +17,18 @@ mfa_code_words = [
 
 
 def get_routes(msg: dict) -> dict:
+    """
+    Filters and sets route field for incoming messages
+
+    Args:
+        msg: extracted message data in dict format
+
+    Returns:
+        dict: updated message with added routes list.
+
+    Raises:
+        RouteProcessingError
+    """
     try:
         body = msg["body"]
         routes = []
