@@ -39,3 +39,10 @@ class RouteProcessingError(Exception):
 
     def __str__(self):
         return "Unable to process routing"
+
+class GoogleAuthError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Unable to authenticate with Google"
