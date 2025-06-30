@@ -18,7 +18,7 @@ class TestEmailSender(unittest.TestCase):
         with self.assertRaises(MissingCredentialsException):
             sender = EmailSender()
         mock_build.assert_not_called()
-        mock_credentials.from_service_account_file.assert_not_called()
+        mock_credentials.from_service_account_info.assert_not_called()
 
     @patch.dict(
         os.environ,
