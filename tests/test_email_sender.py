@@ -1,6 +1,8 @@
+import base64
 import json
 import os
 import unittest
+from email.parser import Parser
 from unittest.mock import patch, MagicMock
 
 from googleapiclient.discovery import Resource
@@ -86,3 +88,47 @@ class TestEmailSender(unittest.TestCase):
         mock_credentials_instance.with_subject.assert_called_once_with("test@test.com")
         mock_build.assert_called_once_with("gmail", "v1", credentials=mock_delegated_credentials_instance)
         self.assertIs(sender.service, mock_service_account)
+
+
+    def test_build_email_requires_destination(self):
+        with self.assertRaises(ValueError) as e:
+            email = EmailSender.build_email("", "Body", "Subject")
+        self.assertEqual(str(e.exception), "Destination must not be empty")
+
+    def test_build_email_requires_body(self):
+        with self.assertRaises(ValueError) as e:
+            email = EmailSender.build_email("to@email.com", "", "Subject")
+        self.assertEqual(str(e.exception), "Body must not be empty")
+
+    def test_build_email_requires_subject(self):
+        with self.assertRaises(ValueError) as e:
+            email = EmailSender.build_email("to@email.com", "Body", "")
+        self.assertEqual(str(e.exception), "Subject must not be empty")
+
+    def test_build_email_raises_exception_on_invalid_address(self):
+        with self.assertRaises(ValueError) as e:
+            email = EmailSender.build_email("toemail.com", "Body", "Subject")
+        self.assertEqual(str(e.exception), "Invalid address")
+
+
+    def test_build_email_returns_encoded_email(self):
+        to = "to@email.com"
+        body = "Body"
+        subject = "Subject"
+
+        result = EmailSender.build_email(to, body, subject)
+        decoded_bytes = base64.urlsafe_b64decode(result)
+        decoded_email = decoded_bytes.decode("UTF-8")
+
+        parser = Parser()
+        parsed_result = parser.parsestr(decoded_email)
+
+        self.assertEqual(to, parsed_result["to"])
+        self.assertEqual(body, parsed_result.get_payload())
+        self.assertEqual(subject, parsed_result["subject"])
+
+
+
+
+
+
