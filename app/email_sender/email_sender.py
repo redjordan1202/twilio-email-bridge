@@ -1,6 +1,9 @@
 import json
 import os
 import logging
+import base64
+import re
+from email.mime.text import MIMEText
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -70,3 +73,20 @@ class EmailSender:
             )
             logging.error(failure_log.to_json())
             raise CustomGoogleAuthError("Failed to authenticate with Google APIs.") from e
+    @staticmethod
+    def build_email(destination: str, body: str, subject: str) -> str:
+        if not destination:
+            raise ValueError("Destination must not be empty")
+        if not subject:
+            raise ValueError("Subject must not be empty")
+        if not body:
+            raise ValueError("Body must not be empty")
+
+        if not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', destination):
+            raise ValueError("Invalid address")
+        message = MIMEText(body)
+        message["to"] = destination
+        message["subject"] = subject
+        message["from"] = "me"
+
+        return base64.urlsafe_b64encode(message.as_bytes()).decode("UTF-8")
