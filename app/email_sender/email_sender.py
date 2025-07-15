@@ -5,6 +5,7 @@ import base64
 import re
 from email.mime.text import MIMEText
 
+from dotenv import load_dotenv
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from google.auth.exceptions import GoogleAuthError
@@ -94,4 +95,4 @@ class EmailSender:
     def send_email(self, encoded_msg: str):
         if not isinstance(encoded_msg, str):
             raise TypeError("encoded_msg must be a string")
-        return self.service.users().messages().send(userId="me", body=encoded_msg).execute()
+        return self.service.users().messages().send(userId="me", body={"raw": encoded_msg}).execute()
