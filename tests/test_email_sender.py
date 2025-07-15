@@ -2,10 +2,10 @@ import base64
 import json
 import os
 import unittest
+from email.mime.text import MIMEText
 from email.parser import Parser
 from unittest.mock import patch, MagicMock
 
-from googleapiclient.discovery import Resource
 from google.cloud.secretmanager_v1.types import AccessSecretVersionResponse, SecretPayload
 
 from app.email_sender import EmailSender
@@ -58,7 +58,7 @@ class TestEmailSender(unittest.TestCase):
 
         self.mock_credentials_instance = MagicMock()
         self.mock_delegated_credentials_instance = MagicMock()
-        self.mock_service_account = MagicMock(spec=Resource)
+        self.mock_service_account = MagicMock()
 
         self.mock_credentials.from_service_account_info.return_value = self.mock_credentials_instance
         self.mock_credentials_instance.with_subject.return_value = self.mock_delegated_credentials_instance
@@ -130,3 +130,21 @@ class TestEmailSender(unittest.TestCase):
         self.assertEqual(to, parsed_result["to"])
         self.assertEqual(body, parsed_result.get_payload())
         self.assertEqual(subject, parsed_result["subject"])
+
+    def test_send_email_throw_exception_on_invalid_data_type(self):
+        with self.assertRaises(TypeError):
+            sender = EmailSender()
+            sender.send_email(b"Test Email String")
+
+    def test_send_email_successfully_sends_email(self):
+        message = MIMEText("Email Body")
+        message["to"] = "to@email.com"
+        message["subject"] = "subject"
+        message["from"] = "me"
+
+        encoded_msg = base64.urlsafe_b64encode(message.as_bytes()).decode("UTF-8")
+
+        sender = EmailSender()
+        sender.send_email(encoded_msg)
+        self.mock_service_account.users().messages().send.assert_called_once()
+        self.mock_service_account.users().messages().send.return_value.execute.assert_called_once()
