@@ -90,3 +90,8 @@ class EmailSender:
         message["from"] = "me"
 
         return base64.urlsafe_b64encode(message.as_bytes()).decode("UTF-8")
+
+    def send_email(self, encoded_msg: str):
+        if not isinstance(encoded_msg, str):
+            raise TypeError("encoded_msg must be a string")
+        return self.service.users().messages().send(userId="me", body=encoded_msg).execute()
