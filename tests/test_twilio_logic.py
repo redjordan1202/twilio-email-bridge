@@ -123,6 +123,9 @@ class TwilioLogicTest(unittest.TestCase):
         is_valid = validate_twilio_request(mock_request, data)
         self.assertFalse(is_valid)
 
+    @patch.dict(os.environ, {'MY_EMAIL': 'email@example.com'})
+    @patch('app.core.twilio_logic.get_routes')
+    @patch('app.core.twilio_logic.EmailSender')
     @patch('app.core.twilio_logic.validate_twilio_request')
     @patch('app.core.twilio_logic.get_client')
     @patch('app.core.twilio_logic.get_full_twilio_data')
@@ -132,7 +135,9 @@ class TwilioLogicTest(unittest.TestCase):
             mock_extract_message_info,
             mock_get_full_twilio_data,
             mock_get_client,
-            mock_validate_twilio_request
+            mock_validate_twilio_request,
+            mock_email_sender,
+            mock_get_routes,
         ):
         mock_request = MagicMock()
         mock_request.url.path = '/webhooks/twilio'
@@ -143,6 +148,7 @@ class TwilioLogicTest(unittest.TestCase):
         mock_message_instance.body = "Test Body"
         mock_message_instance.from_ = "+11234567890"
         mock_message_instance.date_created = datetime.now()
+        mock_sender_instance = mock_email_sender.return_value
 
 
         mock_validate_twilio_request.return_value = True
@@ -153,6 +159,12 @@ class TwilioLogicTest(unittest.TestCase):
             'from': mock_message_instance.from_,
             'date_created': mock_message_instance.date_created
         }
+        mock_get_routes.return_value = {
+            'body': mock_message_instance.body,
+            'from': mock_message_instance.from_,
+            'date_created': mock_message_instance.date_created,
+            'routes': "email"
+        }
 
         twilio_background_task(mock_request, mock_data)
 
@@ -160,6 +172,9 @@ class TwilioLogicTest(unittest.TestCase):
         mock_get_client.assert_called_once()
         mock_get_full_twilio_data.assert_called_once_with(mock_client, mock_data['MessageSid'])
         mock_extract_message_info.assert_called_once_with(mock_message_instance)
+        mock_email_sender.assert_called_once()
+        mock_sender_instance.build_email.assert_called_once()
+        mock_sender_instance.send_email.assert_called_once()
 
     @patch('app.core.twilio_logic.validate_twilio_request')
     @patch('app.core.twilio_logic.logging.error')
