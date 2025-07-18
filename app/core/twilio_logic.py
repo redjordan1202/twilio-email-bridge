@@ -15,6 +15,8 @@ from app.models import LogEntry
 
 from app.decision_logic import get_routes
 
+from app.email_sender import EmailSender
+
 
 def get_client() -> Client:
     """
@@ -171,6 +173,16 @@ def twilio_background_task(request: Request, data: dict) -> dict | None:
             raise ValueError("MessageSid is required in the data")
         full_twilio_data = get_full_twilio_data(client, msg_sid)
         extracted_info = extract_message_info(full_twilio_data)
+        extracted_info = get_routes(extracted_info)
+        if "email" in extracted_info["routes"]:
+            sender = EmailSender()
+            encoded_msg = sender.build_email(
+                destination=os.environ["MY_EMAIL"],
+                subject=f"New Text Message from {extracted_info['from']}",
+                body=extracted_info["body"],
+            )
+            sender.send_email(encoded_msg)
+
         success_log = LogEntry(
             level="INFO",
             message="SMS Processed Successfully",
@@ -179,7 +191,6 @@ def twilio_background_task(request: Request, data: dict) -> dict | None:
             context=sanitize_data(data),
         )
         logging.info(success_log.to_json())
-        return get_routes(extracted_info)
 
     except (
             MissingCredentialsException,

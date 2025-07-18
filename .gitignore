@@ -67,3 +67,6 @@ $RECYCLE.BIN/
 # Linux
 .swp
 *~
+
+# config files
+*.json
