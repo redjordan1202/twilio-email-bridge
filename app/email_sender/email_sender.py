@@ -88,7 +88,7 @@ class EmailSender:
         message = MIMEText(body)
         message["to"] = destination
         message["subject"] = subject
-        message["from"] = "me"
+        message["from"] = os.environ.get("FROM_ADDRESS")
 
         return base64.urlsafe_b64encode(message.as_bytes()).decode("UTF-8")
 
