@@ -140,32 +140,18 @@ def sanitize_data(data: dict) -> dict:
     }
 
 
-def twilio_background_task(request: Request, data: dict) -> dict | None:
+def twilio_background_task(request_headers: dict, data: dict) -> dict | None:
     """
     Function to be called as a background task
     Runs all functions needed to process twilio messages
 
     Args:
-        request: Request to fastAPI endpoint
         data: Raw twilio request data. (Must not be modified for validator to work)
 
     Returns:
         dict: dictionary of extracted data for future processing
         None: returned on error.
     """
-    if not validate_twilio_request(request, data):
-        failure_log = LogEntry(
-            level="ERROR",
-            message="Twilio request is invalid",
-            service_name="Twilio Webhook",
-            trace_id=request.headers.get("X-Twilio-Trace-ID", "None"),
-            context={
-                "message_sid": data.get("MessageSid", "")
-            }
-        )
-        logging.error(failure_log.to_json())
-        return None
-
     try:
         client = get_client()
         msg_sid = data.get("MessageSid")
@@ -187,7 +173,7 @@ def twilio_background_task(request: Request, data: dict) -> dict | None:
             level="INFO",
             message="SMS Processed Successfully",
             service_name="Twilio Webhook",
-            trace_id=request.headers.get("X-Twilio-Trace-ID", "None"),
+            trace_id=request_headers.get("X-Twilio-Trace-ID", "None"),
             context=sanitize_data(data),
         )
         logging.info(success_log.to_json())
@@ -207,7 +193,7 @@ def twilio_background_task(request: Request, data: dict) -> dict | None:
             level="ERROR",
             message= str(e),
             service_name="Twilio Webhook",
-            trace_id=request.headers.get("X-Twilio-Trace-ID", "None"),
+            trace_id=request_headers.get("X-Twilio-Trace-ID", "None"),
             context=sanitized_data,
         )
         logging.error(failure_log.to_json())

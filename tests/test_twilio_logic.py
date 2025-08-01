@@ -126,7 +126,6 @@ class TwilioLogicTest(unittest.TestCase):
     @patch.dict(os.environ, {'MY_EMAIL': 'email@example.com'})
     @patch('app.core.twilio_logic.get_routes')
     @patch('app.core.twilio_logic.EmailSender')
-    @patch('app.core.twilio_logic.validate_twilio_request')
     @patch('app.core.twilio_logic.get_client')
     @patch('app.core.twilio_logic.get_full_twilio_data')
     @patch('app.core.twilio_logic.extract_message_info')
@@ -135,13 +134,11 @@ class TwilioLogicTest(unittest.TestCase):
             mock_extract_message_info,
             mock_get_full_twilio_data,
             mock_get_client,
-            mock_validate_twilio_request,
             mock_email_sender,
             mock_get_routes,
         ):
-        mock_request = MagicMock()
-        mock_request.url.path = '/webhooks/twilio'
-        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+
+        mock_request_headers = {'X-Twilio-Signature': 'fake_signature'}
         mock_data = {'MessageSid': 'fake_msg_sid', 'key': 'value'}
         mock_client = MagicMock(spec=Client)
         mock_message_instance = MagicMock(spec=MessageInstance)
@@ -150,8 +147,6 @@ class TwilioLogicTest(unittest.TestCase):
         mock_message_instance.date_created = datetime.now()
         mock_sender_instance = mock_email_sender.return_value
 
-
-        mock_validate_twilio_request.return_value = True
         mock_get_client.return_value = mock_client
         mock_get_full_twilio_data.return_value = mock_message_instance
         mock_extract_message_info.return_value = {
@@ -166,9 +161,8 @@ class TwilioLogicTest(unittest.TestCase):
             'routes': "email"
         }
 
-        twilio_background_task(mock_request, mock_data)
+        twilio_background_task(mock_request_headers, mock_data)
 
-        mock_validate_twilio_request.assert_called_once_with(mock_request, mock_data)
         mock_get_client.assert_called_once()
         mock_get_full_twilio_data.assert_called_once_with(mock_client, mock_data['MessageSid'])
         mock_extract_message_info.assert_called_once_with(mock_message_instance)
