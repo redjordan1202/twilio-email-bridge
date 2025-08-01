@@ -137,9 +137,8 @@ class TwilioLogicTest(unittest.TestCase):
             mock_email_sender,
             mock_get_routes,
         ):
-        mock_request = MagicMock()
-        mock_request.url.path = '/webhooks/twilio'
-        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+
+        mock_request_headers = {'X-Twilio-Signature': 'fake_signature'}
         mock_data = {'MessageSid': 'fake_msg_sid', 'key': 'value'}
         mock_client = MagicMock(spec=Client)
         mock_message_instance = MagicMock(spec=MessageInstance)
@@ -162,7 +161,7 @@ class TwilioLogicTest(unittest.TestCase):
             'routes': "email"
         }
 
-        twilio_background_task(mock_request, mock_data)
+        twilio_background_task(mock_request_headers, mock_data)
 
         mock_get_client.assert_called_once()
         mock_get_full_twilio_data.assert_called_once_with(mock_client, mock_data['MessageSid'])
