@@ -153,19 +153,6 @@ def twilio_background_task(request: Request, data: dict) -> dict | None:
         dict: dictionary of extracted data for future processing
         None: returned on error.
     """
-    if not validate_twilio_request(request, data):
-        failure_log = LogEntry(
-            level="ERROR",
-            message="Twilio request is invalid",
-            service_name="Twilio Webhook",
-            trace_id=request.headers.get("X-Twilio-Trace-ID", "None"),
-            context={
-                "message_sid": data.get("MessageSid", "")
-            }
-        )
-        logging.error(failure_log.to_json())
-        return None
-
     try:
         client = get_client()
         msg_sid = data.get("MessageSid")
