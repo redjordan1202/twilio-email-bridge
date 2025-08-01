@@ -1,23 +1,44 @@
+import logging
 from fastapi import APIRouter, Request, BackgroundTasks
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
+from starlette import status
 from starlette.responses import JSONResponse
 
-from app.models import TwilioRequest
-from app.core.twilio_logic import twilio_background_task
+from app.models import TwilioRequest, LogEntry
+from app.core.twilio_logic import twilio_background_task, validate_twilio_request, sanitize_data
+
 
 router = APIRouter()
+
 
 @router.post("/webhooks/twilio")
 async def handle_twilio_sms(request: Request, background_tasks: BackgroundTasks = BackgroundTasks):
     data = await request.form()
+    data = dict(data)
+    headers = dict(request.headers)
     try:
         twilio_data = TwilioRequest(**data)
-        background_tasks.add_task(twilio_background_task, request, dict(data))
+        if not validate_twilio_request(request, data):
+            error_log = LogEntry(
+                level="ERROR",
+                message="Invalid twilio request",
+                service_name="Twilio Webhook",
+                trace_id=headers.get("X-Twilio-Trace-ID", "None"),
+                context=sanitize_data(data),
+            )
+            logging.error(error_log)
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={"message": "Invalid twilio request"},
+            )
+
+        background_tasks.add_task(twilio_background_task, headers, dict(data))
         return JSONResponse(
             status_code=200,
             content={},
         )
+
     except ValidationError as e:
         raise RequestValidationError(
             errors=e.errors(),
