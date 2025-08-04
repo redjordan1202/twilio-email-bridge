@@ -40,6 +40,7 @@ def get_client() -> Client:
     except TwilioRestException as e:
         raise ClientAuthenticationException("Twilio Authentication Failed") from e
 
+
 def validate_twilio_request(request: Request, data: dict) -> bool:
     """
     Validates a Twilio request
@@ -51,9 +52,25 @@ def validate_twilio_request(request: Request, data: dict) -> bool:
     Returns:
         bool: True if valid, False otherwise
     """
+    if 'ErrorUrl' in data:
+        url = data['ErrorUrl']
+
+    else:
+        scheme = request.headers["x-forwarded-proto"]
+        host = request.headers["host"]
+        path = request.scope['path']
+        prod_path = os.environ.get("PROD_PATH", "")
+        path = prod_path + path
+        query = request.url.query
+
+        url = f"{scheme}://{host}{path}"
+        if query:
+            url += f"?{query}"
+
+    print(url)
     validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
     is_valid = validator.validate(
-        str(request.url),
+        url,
         data,
         request.headers.get("X-Twilio-Signature", "")
     )
