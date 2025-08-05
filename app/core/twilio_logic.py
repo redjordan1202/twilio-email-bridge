@@ -76,6 +76,7 @@ def validate_twilio_request(request: Request, data: dict) -> bool:
     )
     return is_valid
 
+
 def get_full_twilio_data(client: Client, msg_sid: str) -> MessageInstance:
     """
     Pulls full message data from twilio
@@ -163,6 +164,7 @@ def twilio_background_task(request_headers: dict, data: dict) -> dict | None:
     Runs all functions needed to process twilio messages
 
     Args:
+        request_headers: Dictionary of request headers
         data: Raw twilio request data. (Must not be modified for validator to work)
 
     Returns:

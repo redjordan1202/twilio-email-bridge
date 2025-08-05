@@ -14,6 +14,20 @@ router = APIRouter()
 
 @router.post("/webhooks/twilio")
 async def handle_twilio_sms(request: Request, background_tasks: BackgroundTasks = BackgroundTasks):
+    """ Receives and process incoming Twilio SMS webhook requests
+
+    This endpoint receives inbound Twilio SMS messages and sends them to a background task for processing and forwarding.
+
+    Args:
+        request: FastAPI Request object.
+        background_tasks: FastAPI Background Tasks object.
+
+    Returns:
+        JSONResponse: JSONSResponse showing 403 if request is an invalid twilio request, or 200 if request is valid.
+
+    Raises:
+        ValidationError: If the incoming Twilio SMS message is structured incorrectly or missing required fields
+    """
     data = await request.form()
     data = dict(data)
     headers = dict(request.headers)

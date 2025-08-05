@@ -15,8 +15,19 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()
 app = FastAPI()
 
+
 @app.exception_handler(HTTPException)
 def handle_http_exception(request: Request, exc: HTTPException):
+    """
+    Handles HTTP exceptions
+
+    Args:
+        request: FastAPI request object
+        exc: Exception object
+
+    Returns: JSONResponse detailing error that occurred with a status code based on the specific error
+
+    """
     if exc.status_code == 405:
         return JSONResponse(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
@@ -37,8 +48,19 @@ def handle_http_exception(request: Request, exc: HTTPException):
             }
         )
 
+
 @app.exception_handler(RequestValidationError)
 def handle_request_validation_exception(request: Request, exc: RequestValidationError):
+    """
+    Handles request validation errors
+
+    Args:
+        request: FastAPI request object
+        exc: Exception object
+
+    Returns: JSONResponse detailing the validation errors in the data.
+
+    """
     error_response = ValidationError(
         error_code=422,
         validation_errors=[],
@@ -50,8 +72,8 @@ def handle_request_validation_exception(request: Request, exc: RequestValidation
         field_name = error["loc"][-1] if "loc" in error else "Unknown Field"
         validation_error = {
             "field": field_name,
-            "message" : error["msg"],
-            "type" : error["type"],
+            "message": error["msg"],
+            "type": error["type"],
         }
         error_response.validation_errors.append(validation_error)
 
@@ -59,5 +81,6 @@ def handle_request_validation_exception(request: Request, exc: RequestValidation
         status_code=422,
         content=error_response.model_dump()
     )
+
 
 app.include_router(twilio_webhooks.router)
