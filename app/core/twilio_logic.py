@@ -56,16 +56,19 @@ def validate_twilio_request(request: Request, data: dict) -> bool:
         url = data['ErrorUrl']
 
     else:
-        scheme = request.headers["x-forwarded-proto"]
-        host = request.headers["host"]
-        path = request.scope['path']
-        prod_path = os.environ.get("PROD_PATH", "")
-        path = prod_path + path
-        query = request.url.query
+        try:
+            scheme = request.headers["x-forwarded-proto"]
+            host = request.headers["host"]
+            path = request.scope['path']
+            prod_path = os.environ.get("PROD_PATH", "")
+            path = prod_path + path
+            query = request.url.query
 
-        url = f"{scheme}://{host}{path}"
-        if query:
-            url += f"?{query}"
+            url = f"{scheme}://{host}{path}"
+            if query:
+                url += f"?{query}"
+        except KeyError:
+            return False
 
     print(url)
     validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
