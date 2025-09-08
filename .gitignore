@@ -70,3 +70,6 @@ $RECYCLE.BIN/
 
 # config files
 *.json
+
+# secrets directory
+/secrets/
