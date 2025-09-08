@@ -107,7 +107,12 @@ class TwilioLogicTest(unittest.TestCase):
         mock_validator.return_value.validate.return_value = True
         mock_request = MagicMock()
         mock_request.url.path = '/webhooks/twilio'
-        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+        mock_request.headers = {
+            'X-Twilio-Signature': 'fake_signature',
+            'x-forwarded-proto': 'https',
+            'host': 'example.com',
+            'path': 'webhooks/twilio'
+        }
         data = {'key': 'value'}
         is_valid = validate_twilio_request(mock_request, data)
         self.assertTrue(is_valid)
