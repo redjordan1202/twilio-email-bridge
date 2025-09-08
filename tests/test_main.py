@@ -6,6 +6,12 @@ from app.core.twilio_logic import twilio_background_task
 import json
 
 test_client = TestClient(app)
+test_client.headers = {
+            'X-Twilio-Signature': 'fake_signature',
+            'x-forwarded-proto': 'https',
+            'host': 'example.com',
+            'path': 'webhooks/twilio'
+        }
 
 dummy_message = {
     "SmsSid": "SMxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
@@ -31,8 +37,11 @@ dummy_message = {
     "NumMedia": "0"
 }
 
+
 @patch('fastapi.BackgroundTasks.add_task')
-def test_twilio_webhook_handles_valid_request(mock_add_task):
+@patch('app.core.twilio_logic.RequestValidator')
+def test_twilio_webhook_handles_valid_request(mock_validator, mock_add_task):
+    mock_validator.return_value.validate.return_value = True
     response = test_client.post("/webhooks/twilio", data=dummy_message)
     print(response.request.content)
     assert response.status_code == 200

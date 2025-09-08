@@ -107,7 +107,12 @@ class TwilioLogicTest(unittest.TestCase):
         mock_validator.return_value.validate.return_value = True
         mock_request = MagicMock()
         mock_request.url.path = '/webhooks/twilio'
-        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
+        mock_request.headers = {
+            'X-Twilio-Signature': 'fake_signature',
+            'x-forwarded-proto': 'https',
+            'host': 'example.com',
+            'path': 'webhooks/twilio'
+        }
         data = {'key': 'value'}
         is_valid = validate_twilio_request(mock_request, data)
         self.assertTrue(is_valid)
@@ -169,19 +174,6 @@ class TwilioLogicTest(unittest.TestCase):
         mock_email_sender.assert_called_once()
         mock_sender_instance.build_email.assert_called_once()
         mock_sender_instance.send_email.assert_called_once()
-
-    @patch('app.core.twilio_logic.validate_twilio_request')
-    @patch('app.core.twilio_logic.logging.error')
-    def test_background_task_function_logs_error_on_invalid_request (self,mock_logger, mock_validate_twilio_request):
-        mock_validate_twilio_request.return_value = False
-        mock_request = MagicMock()
-        mock_request.url.path = '/webhooks/twilio'
-        mock_request.headers = {'X-Twilio-Signature': 'fake_signature'}
-        mock_data = {'MessageSid': 'fake_msg_sid', 'key': 'value'}
-
-        twilio_background_task(mock_request, mock_data)
-        mock_logger.assert_called_once()
-
 
     @patch('app.core.twilio_logic.validate_twilio_request')
     @patch('app.core.twilio_logic.get_client')

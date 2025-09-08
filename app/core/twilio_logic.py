@@ -56,16 +56,19 @@ def validate_twilio_request(request: Request, data: dict) -> bool:
         url = data['ErrorUrl']
 
     else:
-        scheme = request.headers["x-forwarded-proto"]
-        host = request.headers["host"]
-        path = request.scope['path']
-        prod_path = os.environ.get("PROD_PATH", "")
-        path = prod_path + path
-        query = request.url.query
+        try:
+            scheme = request.headers["x-forwarded-proto"]
+            host = request.headers["host"]
+            path = request.scope['path']
+            prod_path = os.environ.get("PROD_PATH", "")
+            path = prod_path + path
+            query = request.url.query
 
-        url = f"{scheme}://{host}{path}"
-        if query:
-            url += f"?{query}"
+            url = f"{scheme}://{host}{path}"
+            if query:
+                url += f"?{query}"
+        except KeyError:
+            return False
 
     print(url)
     validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
@@ -190,7 +193,7 @@ def twilio_background_task(request_headers: dict, data: dict) -> dict | None:
             level="INFO",
             message="SMS Processed Successfully",
             service_name="Twilio Webhook",
-            trace_id=request_headers.get("X-Twilio-Trace-ID", "None"),
+            trace_id=str(request_headers.get("X-Twilio-Trace-ID", "None")),
             context=sanitize_data(data),
         )
         logging.info(success_log.to_json())
@@ -210,7 +213,7 @@ def twilio_background_task(request_headers: dict, data: dict) -> dict | None:
             level="ERROR",
             message= str(e),
             service_name="Twilio Webhook",
-            trace_id=request_headers.get("X-Twilio-Trace-ID", "None"),
+            trace_id=str(request_headers.get("X-Twilio-Trace-ID", "None")),
             context=sanitized_data,
         )
         logging.error(failure_log.to_json())
