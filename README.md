@@ -1,7 +1,7 @@
 # Chiron Relay
 #### A serverless bidirectional communication relay allowing for receiving and send SMS messages via email and Discord
 
-## 🚀 Key Features
+## 🚀 Key Features 
 - __Secure Webhook Ingestion:__ Validates incoming requests from Twilio using Twilio's recommend `HMAC-SHA1` signature validation process, ensuring all processed requests are valid and secure
 - __Async Task Processing:__ All validation and processing are handled as FastAPI BackgroundTasks to provide a fast and responsive API experience
 - __Structured JSON Logging:__ All logging is done using structured JSON logging to provide clean, human-readable logging free of any personal information
