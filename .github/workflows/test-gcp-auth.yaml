@@ -1,0 +1,27 @@
+name: Test GCP Authentication
+
+# This allows you to run the workflow manually from the GitHub UI
+on:
+  workflow_dispatch:
+
+jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      id-token: 'write' # Required for OIDC authentication
+
+    steps:
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: '${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}'
+          service_account: '${{ secrets.GCP_SERVICE_ACCOUNT }}'
+
+      - name: "Test Authentication with gcloud"
+        run: |
+          echo "Authentication successful!"
+          echo "Running a read-only gcloud command to verify..."
+          gcloud projects describe ${{ secrets.GCP_PROJECT_ID }}
