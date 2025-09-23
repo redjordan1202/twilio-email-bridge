@@ -1,0 +1,45 @@
+---
+
+#--------------------------#
+# Chiron Relay config file #
+#--------------------------#
+
+# Plugin Definitions
+# This section defines the installed sender plugins to be used.
+# Each plugin requires a unique, user-defined name. This name 
+# will be used to assign senders to severity levels later in 
+# this file. 
+# 'type' field must match the file name of the plugin, minus file extension
+# For example if the plugins file name is 'smtp_sender.py', the type for any
+# plugin that uses that file must be 'smtp_sender'
+
+plugins:
+  - name: "default_email_sender"
+    type: "smtp_sender"
+    config:
+      recipient_email: "user@domain.com"
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+
+# Severity Level Assignments
+# This section is where you will assign the above plugins to serverity levels.
+# If you do not assign a plugin to a severity level, it will not be used.
+# Plugins are assigned based on their assigned name. This allows you to have
+# different verisons of the same plugin type assigned to multiple severity
+# levels. 
+# If you do not assign any plugins to a severity level, it will not be used
+# DO NOT CHANGE THE LEVEL NAMES. These are currently hardcoded severity levels.
+# Future feature releases will add custom severity levels. 
+
+severity_levels:
+  "normal":
+    - "default_email_sender"
+
+  "urgent":
+    - "default_email_sender"
+
+  "critical":
+    - "default_email_sender"
+
+  "mfa":
+    - "default_email_sender"
