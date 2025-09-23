@@ -70,6 +70,7 @@ $RECYCLE.BIN/
 
 # config files
 *.json
+config.yaml
 
 # secrets directory
 /secrets/
