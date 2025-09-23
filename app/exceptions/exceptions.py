@@ -46,3 +46,25 @@ class GoogleAuthError(Exception):
 
     def __str__(self):
         return "Unable to authenticate with Google"
+
+class ConfigNotFoundError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Unable to find config file"
+
+class InvalidYamlError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "YAML file is not valid"
+
+class YamlMissingKeyError(Exception):
+    def __init__(self, message, key):
+        super().__init__(message)
+        self.key = key
+
+    def __str__(self):
+        return f"YAML file is missing required key {self.key}"
