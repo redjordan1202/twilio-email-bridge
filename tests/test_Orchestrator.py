@@ -38,22 +38,20 @@ class TestOrchestrator(unittest.TestCase):
             'path': 'webhooks/twilio'
         }
 
-    def test_orchestrator_raises_error_on_missing_message_data(self):
-        mock_config_loader = MagicMock()
+        self.mock_config_loader = mock_config_loader = MagicMock()
 
+    def test_orchestrator_raises_error_on_missing_message_data(self):
         with self.assertRaises(TypeError):
             orchestrator = Orchestrator(
-                config_loader=mock_config_loader,
+                config_loader=self.mock_config_loader,
                 headers = self.dummy_headers
                 )
 
     def test_orchestrator_raises_error_on_missing_headers(self):
-        mock_config_loader = MagicMock()
-
         with self.assertRaises(TypeError):
             orchestrator = Orchestrator(
                 message_data=self.dummy_message,
-                config_loader=mock_config_loader,
+                config_loader=self.mock_config_loader,
                 )
 
     def test_orchestrator_raises_error_on_missing_config_loader(self):
@@ -65,12 +63,10 @@ class TestOrchestrator(unittest.TestCase):
 
     @patch('app.core.twilio_logic.process_message')
     def test_orchestrator_calls_process_message_function(self, mock_process_message):
-        mock_config_loader = MagicMock()
         orchestrator = Orchestrator(
-            config_loader=mock_config_loader, 
+            config_loader=self.mock_config_loader, 
             message_data=self.dummy_message,
             headers=self.dummy_headers
             )
-        
         orchestrator.process_message()
         mock_process_message.assert_called_once_with(self.dummy_message)
