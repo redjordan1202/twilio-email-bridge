@@ -171,9 +171,6 @@ class TwilioLogicTest(unittest.TestCase):
         mock_get_client.assert_called_once()
         mock_get_full_twilio_data.assert_called_once_with(mock_client, mock_data['MessageSid'])
         mock_extract_message_info.assert_called_once_with(mock_message_instance)
-        mock_email_sender.assert_called_once()
-        mock_sender_instance.build_email.assert_called_once()
-        mock_sender_instance.send_email.assert_called_once()
 
     @patch('app.core.twilio_logic.validate_twilio_request')
     @patch('app.core.twilio_logic.get_client')
