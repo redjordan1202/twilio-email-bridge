@@ -75,6 +75,13 @@ class OrchestratorMissingMessageData(Exception):
 
     def __str__(self):
         return "Message Data missing or blank"
+    
+class OrchestratorMissingHeaders(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Headers missing or blank"
 
 class OrchestratorUnableToProcess(Exception):
     def __init__(self, message):
