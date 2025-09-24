@@ -68,7 +68,8 @@ class TestOrchestrator(unittest.TestCase):
         mock_config_loader = MagicMock()
         orchestrator = Orchestrator(
             config_loader=mock_config_loader, 
-            message_data=self.dummy_message
+            message_data=self.dummy_message,
+            headers=self.dummy_headers
             )
         
         orchestrator.process_message()
