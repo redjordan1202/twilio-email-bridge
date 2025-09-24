@@ -68,3 +68,17 @@ class YamlMissingKeyError(Exception):
 
     def __str__(self):
         return f"YAML file is missing required key {self.key}"
+
+class OrchestratorMissingMessageData(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Message Data missing or blank"
+
+class OrchestratorUnableToProcess(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Orchestrator unable to process message"
