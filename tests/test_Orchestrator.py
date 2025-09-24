@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from app.Orchestrator import Orchestrator
-from app.exceptions import OrchestratorMissingMessageData, OrchestratorUnableToProcess
+from app.exceptions import OrchestratorMissingMessageData, OrchestratorUnableToProcess, OrchestratorMissingHeaders
 
 class TestOrchestrator(unittest.TestCase):
     def setUp(self):
@@ -60,6 +60,22 @@ class TestOrchestrator(unittest.TestCase):
                 message_data=self.dummy_message,
                 headers = self.dummy_headers
                 )
+
+    def test_orchestrator_raises_error_on_empty_message_data(self):
+        with self.assertRaises(OrchestratorMissingMessageData):
+            orchestrator = Orchestrator(
+            config_loader=self.mock_config_loader, 
+            message_data={},
+            headers=self.dummy_headers
+            )
+
+    def test_orchestrator_raises_error_on_empty_headers(self):
+        with self.assertRaises(OrchestratorMissingHeaders):
+            orchestrator = Orchestrator(
+            config_loader=self.mock_config_loader, 
+            message_data=self.dummy_message,
+            headers={}
+            )
 
     @patch('app.core.twilio_logic.process_message')
     def test_orchestrator_calls_process_message_function(self, mock_process_message):
