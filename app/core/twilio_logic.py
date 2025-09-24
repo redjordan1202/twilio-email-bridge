@@ -180,14 +180,6 @@ def twilio_background_task(request_headers: dict, data: dict) -> dict | None:
         full_twilio_data = get_full_twilio_data(client, msg_sid)
         extracted_info = extract_message_info(full_twilio_data)
         extracted_info = get_routes(extracted_info)
-        if "email" in extracted_info["routes"]:
-            sender = EmailSender()
-            encoded_msg = sender.build_email(
-                destination=os.environ["MY_EMAIL"],
-                subject=f"New Text Message from {extracted_info['from']}",
-                body=extracted_info["body"],
-            )
-            sender.send_email(encoded_msg)
 
         success_log = LogEntry(
             level="INFO",
@@ -197,6 +189,7 @@ def twilio_background_task(request_headers: dict, data: dict) -> dict | None:
             context=sanitize_data(data),
         )
         logging.info(success_log.to_json())
+        return extracted_info
 
     except (
             MissingCredentialsException,
