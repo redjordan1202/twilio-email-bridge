@@ -77,12 +77,20 @@ class TestOrchestrator(unittest.TestCase):
             headers={}
             )
 
-    @patch('app.core.twilio_logic.process_message')
+    @patch('app.Orchestrator.orchestrator.process_message')
     def test_orchestrator_calls_process_message_function(self, mock_process_message):
+        mock_process_message.return_value = {
+            'body': "Test Message",
+            'from': "5551234567",
+            'date_created': datetime.now()
+        }
         orchestrator = Orchestrator(
             config_loader=self.mock_config_loader, 
             message_data=self.dummy_message,
             headers=self.dummy_headers
             )
         orchestrator.process_message()
-        mock_process_message.assert_called_once_with(self.dummy_message)
+        mock_process_message.assert_called_once_with(
+            self.dummy_headers,
+            self.dummy_message
+            )
