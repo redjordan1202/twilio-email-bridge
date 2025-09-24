@@ -6,7 +6,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from app.models import TwilioRequest, LogEntry
-from app.core.twilio_logic import twilio_background_task, validate_twilio_request, sanitize_data
+from app.core.twilio_logic import process_message, validate_twilio_request, sanitize_data
 
 
 router = APIRouter()
@@ -33,7 +33,7 @@ async def handle_twilio_sms(request: Request, background_tasks: BackgroundTasks 
                 content={"message": "Invalid twilio request"},
             )
 
-        background_tasks.add_task(twilio_background_task, headers, dict(data))
+        background_tasks.add_task(process_message, headers, dict(data))
         return JSONResponse(
             status_code=200,
             content={},

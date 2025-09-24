@@ -160,7 +160,7 @@ def sanitize_data(data: dict) -> dict:
     }
 
 
-def twilio_background_task(request_headers: dict, data: dict) -> dict | None:
+def process_message(request_headers: dict, data: dict) -> dict | None:
     """
     Function to be called as a background task
     Runs all functions needed to process twilio messages

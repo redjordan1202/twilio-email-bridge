@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, ANY
 from fastapi.testclient import TestClient
 from app.core.main import app
-from app.core.twilio_logic import twilio_background_task
+from app.core.twilio_logic import process_message
 import json
 
 test_client = TestClient(app)
@@ -47,7 +47,7 @@ def test_twilio_webhook_handles_valid_request(mock_validator, mock_add_task):
     assert response.status_code == 200
     assert response.json() == {}
     mock_add_task.assert_called_once()
-    mock_add_task.assert_called_once_with(twilio_background_task, ANY, dummy_message)
+    mock_add_task.assert_called_once_with(process_message, ANY, dummy_message)
 
 def test_twilio_webhook_reject_get():
     response = test_client.get("/webhooks/twilio")

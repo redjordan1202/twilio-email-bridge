@@ -9,7 +9,7 @@ from twilio.rest import Client
 from twilio.rest.api.v2010.account.message import MessageInstance
 
 from app.core.twilio_logic import get_full_twilio_data, extract_message_info, get_client, validate_twilio_request, \
-    twilio_background_task, sanitize_data
+    process_message, sanitize_data
 from app.exceptions import ClientAuthenticationException, RequiresClientException, ResourceNotFoundException, \
     MissingCredentialsException, InvalidTwilioRequestException
 
@@ -166,7 +166,7 @@ class TwilioLogicTest(unittest.TestCase):
             'routes': "email"
         }
 
-        twilio_background_task(mock_request_headers, mock_data)
+        process_message(mock_request_headers, mock_data)
 
         mock_get_client.assert_called_once()
         mock_get_full_twilio_data.assert_called_once_with(mock_client, mock_data['MessageSid'])
@@ -194,7 +194,7 @@ class TwilioLogicTest(unittest.TestCase):
         mock_validate_twilio_request.return_value = True
         mock_get_client.side_effect = ClientAuthenticationException("Required credentials are missing")
 
-        twilio_background_task(mock_request, mock_data)
+        process_message(mock_request, mock_data)
         mock_logger.assert_called_once()
 
 
