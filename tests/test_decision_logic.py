@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime
 
-from app.exceptions import RouteProcessingError
+from app.exceptions import RouteProcessingError, MissingServeritySectionError, MissingServerityLevelsError
 from app.decision_logic import get_routes
 
 

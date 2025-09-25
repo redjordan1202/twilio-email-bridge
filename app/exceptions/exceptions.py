@@ -103,3 +103,17 @@ class DecisionLogicConfigMissing(Exception):
 
     def __str__(self):
         return "Config is missing or blank"
+    
+class MissingServeritySectionError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Severity Section of config is missing"
+    
+class MissingServerityLevelsError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+    def __str__(self):
+        return "Severity Section is missing one or mor serverity levels"
