@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime
 
 from app.exceptions import RouteProcessingError, MissingServeritySectionError, MissingServerityLevelsError
-from app.decision_logic import get_routes
+from app.decision_logic import DecisionLogic
 
 
 class TestDecisionLogic(unittest.TestCase):
