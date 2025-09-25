@@ -129,7 +129,6 @@ class TwilioLogicTest(unittest.TestCase):
         self.assertFalse(is_valid)
 
     @patch.dict(os.environ, {'MY_EMAIL': 'email@example.com'})
-    @patch('app.core.twilio_logic.get_routes')
     @patch('app.core.twilio_logic.EmailSender')
     @patch('app.core.twilio_logic.get_client')
     @patch('app.core.twilio_logic.get_full_twilio_data')
@@ -140,7 +139,6 @@ class TwilioLogicTest(unittest.TestCase):
             mock_get_full_twilio_data,
             mock_get_client,
             mock_email_sender,
-            mock_get_routes,
         ):
 
         mock_request_headers = {'X-Twilio-Signature': 'fake_signature'}
@@ -158,12 +156,6 @@ class TwilioLogicTest(unittest.TestCase):
             'body': mock_message_instance.body,
             'from': mock_message_instance.from_,
             'date_created': mock_message_instance.date_created
-        }
-        mock_get_routes.return_value = {
-            'body': mock_message_instance.body,
-            'from': mock_message_instance.from_,
-            'date_created': mock_message_instance.date_created,
-            'routes': "email"
         }
 
         process_message(mock_request_headers, mock_data)
