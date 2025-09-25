@@ -47,7 +47,7 @@ class TestDecisionLogic(unittest.TestCase):
         }
 
         decision_logic = DecisionLogic(message = dummy_message, config = self.dummy_config)
-        actual_result = decision_logic.get_routes(dummy_message)
+        actual_result = decision_logic.get_routes()
         self.assertEqual(expected_result, actual_result)
 
 
@@ -65,7 +65,7 @@ class TestDecisionLogic(unittest.TestCase):
         }
 
         decision_logic = DecisionLogic(message = dummy_message, config = self.dummy_config)
-        actual_result = decision_logic.get_routes(dummy_message)
+        actual_result = decision_logic.get_routes()
         self.assertEqual(expected_result, actual_result)
 
     def test_get_routes_returns_correct_route_for_mfa_messages(self):
@@ -82,7 +82,7 @@ class TestDecisionLogic(unittest.TestCase):
         }
 
         decision_logic = DecisionLogic(message = dummy_message, config = self.dummy_config)
-        actual_result = decision_logic.get_routes(dummy_message)
+        actual_result = decision_logic.get_routes()
         self.assertEqual(expected_result, actual_result)
 
     def test_get_routes_returns_correct_route_for_normal_messages(self):
@@ -99,7 +99,7 @@ class TestDecisionLogic(unittest.TestCase):
         }
 
         decision_logic = DecisionLogic(message = dummy_message, config = self.dummy_config)
-        actual_result = decision_logic.get_routes(dummy_message)
+        actual_result = decision_logic.get_routes()
         self.assertEqual(expected_result, actual_result)
 
     def test_get_routes_raise_exception_on_processing_error(self):
@@ -110,7 +110,7 @@ class TestDecisionLogic(unittest.TestCase):
         }
         with self.assertRaises(RouteProcessingError):
             decision_logic = DecisionLogic(message = dummy_message, config = self.dummy_config)
-            decision_logic.get_routes(dummy_message)
+            decision_logic.get_routes()
 
     def test_init_function_raises_error_on_missing_message_data(self):
         with self.assertRaises(TypeError):
