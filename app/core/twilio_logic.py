@@ -12,9 +12,6 @@ from app.exceptions.exceptions import MissingCredentialsException, ClientAuthent
 from twilio.rest import Client
 
 from app.models import LogEntry
-
-from app.decision_logic import get_routes
-
 from app.email_sender import EmailSender
 
 
@@ -179,7 +176,6 @@ def process_message(request_headers: dict, data: dict) -> dict | None:
             raise ValueError("MessageSid is required in the data")
         full_twilio_data = get_full_twilio_data(client, msg_sid)
         extracted_info = extract_message_info(full_twilio_data)
-        extracted_info = get_routes(extracted_info)
 
         success_log = LogEntry(
             level="INFO",
